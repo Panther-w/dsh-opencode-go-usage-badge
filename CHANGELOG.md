@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.2 — 2026-11-09
+
+- OpenCode Go: when `OPENCODE_GO_API_KEY` is absent, fall back to an installed OpenCode Console's local OAuth credential (`credential.json`), so Console users no longer see `额度 —`.
+- Reading the fallback is read-only and Host-side; the token never reaches the browser.
+- 37 automated tests, including the Console OAuth/key fallback and precedence rules.
+
 ## 0.4.1 — 2026-11-09
 
 - Fix: opening the expanded card for a DeepSeek official conversation threw `ReferenceError` because the balance view referenced `totalBalance` outside its scope. The card now renders total/recharge/bonus correctly.
