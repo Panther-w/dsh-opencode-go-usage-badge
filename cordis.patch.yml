@@ -1,0 +1,4 @@
+# Mount the Host that serves the sidebar’s read-only quota and balance requests.
+- insert:
+    - id: dsh-opencode-go-usage-badge
+      name: "dsh-opencode-go-usage-badge"

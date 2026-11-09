@@ -1,0 +1,59 @@
+{
+  "name": "dsh-opencode-go-usage-badge",
+  "version": "0.4.1",
+  "description": "Sidebar badge for OpenCode Go quota, showing the current DeepSeek official balance when that model source is selected.",
+  "author": {
+    "name": "Panther-w",
+    "email": "22514352+Panther-w@users.noreply.github.com"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "./lib/index.js",
+  "exports": {
+    ".": "./lib/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Panther-w/dsh-opencode-go-usage-badge.git"
+  },
+  "homepage": "https://github.com/Panther-w/dsh-opencode-go-usage-badge#readme",
+  "bugs": {
+    "url": "https://github.com/Panther-w/dsh-opencode-go-usage-badge/issues"
+  },
+  "keywords": [
+    "dsh",
+    "dsh-plugin",
+    "deepseek-harness",
+    "opencode",
+    "opencode-go",
+    "quota",
+    "usage",
+    "balance"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "lib",
+    "locale",
+    "cordis.patch.yml",
+    "README.md",
+    "README.en.md",
+    "LICENSE",
+    "docs"
+  ],
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "inject": [],
+      "platform": "web"
+    }
+  },
+  "scripts": {
+    "test": "node --test test/display.test.mjs test/host.test.mjs"
+  }
+}

@@ -1,0 +1,89 @@
+# dsh-opencode-go-usage-badge
+
+[中文说明](README.md) | English
+
+A tiny, quiet badge at the bottom of the DeepSeek Harness sidebar. It shows how much **OpenCode Go** quota you have left, and switches to your **DeepSeek official balance** when the current conversation uses that model.
+
+No setup screens, no layout changes, no background writes — just a small number you can glance at.
+
+![Annotated screenshot of the badge and its expanded card](docs/preview.en.png)
+
+Screenshots show the Chinese UI; the English README describes the same interface.
+
+## What it is for
+
+OpenCode Go has three quota windows (5-hour rolling, weekly, monthly) that block independently. The monthly number is usually not what stops you, so the badge shows the **5-hour** window by default; you can choose which windows to show, while the status colour always follows the tightest one. Quota and balance also come from different places, so the badge **follows the current conversation's model source** instead of asking you to configure it.
+
+Three design rules keep it small:
+
+- **Small and out of the way.** One line in the sidebar footer; nothing else in the layout changes.
+- **Source-aware.** OpenCode Go conversation → quota. DeepSeek official conversation → balance. Unknown provider → `额度 —`, never a guess.
+- **Simple and safe.** Read-only, no telemetry, no files written; keys stay in the DSH Host process.
+
+## What you see
+
+- Collapsed: the windows you selected, in a fixed order — `● 5h 95%`, `● 5h 95% · 1w 98%`, and so on.
+- Tick any of `5h` / `1w` / `1m` in the expanded card. At least one stays selected; the default is `5h`, and the choice is remembered.
+- The status dot always uses the tightest of all three windows, even when you hide it. If a hidden window is tighter than everything shown, the badge adds an amber `!` naming it in its tooltip.
+- Colors: **above 20% green, 6–20% yellow, 5% and below red**; 0% is red. Normal numbers stay in the theme text color; at 20% or below the number itself turns yellow/red, not just the dot.
+- DeepSeek official conversation: `● ¥88.00`; the card shows total, recharge and bonus balances, the data source and the current model. A zero or negative balance is red.
+- Unknown provider: `额度 —` in grey — never a guessed number.
+- Data older than 5 minutes gets a `!`. A failed request keeps the last successful value for that source; missing or rejected credentials clear it.
+- Refresh every 60 seconds while the page is visible, immediately on focus/visibility/`pageshow`/network recovery, and when the conversation's model source changes. The refresh button bypasses the 30-second cache.
+
+## Where the data comes from
+
+The badge reads the main-view conversation through DSH's `uiSession` service and its `modelSelection` projection (falling back to the session list). It never changes your model, thinking level or settings.
+
+| Provider id | Data shown | Requirement |
+| --- | --- | --- |
+| `opencode-go` | OpenCode Go quota windows | `OPENCODE_GO_API_KEY` configured in DSH |
+| `deepseek-account` | DeepSeek account balance | signed in under DSH **Settings → Account & balance** |
+| `deepseek-official` | DeepSeek API-key balance | `DEEPSEEK_API_KEY` configured in DSH |
+
+Only these built-in provider ids are recognized. Custom provider aliases or rewritten endpoints are not supported and show `额度 —`.
+
+## Install
+
+Tested with **DeepSeek Harness Desktop `0.2.2-rc.1` on macOS**.
+
+1. Download `dsh-opencode-go-usage-badge-0.4.1.tgz` from the release, or clone this repository.
+2. In DSH Desktop open **Plugins → Add plugin** and enter the tarball path, the repository URL, or the absolute path of this package. Enable the bundle after installation.
+3. Fully quit and reopen DSH Desktop. Open a conversation using one of the providers above and check the bottom-left sidebar.
+
+With the DSH CLI:
+
+```sh
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.1.tgz
+dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
+```
+
+Uninstall through the same Plugins page, then reopen Desktop.
+
+## Privacy and security
+
+- Read-only. The browser only calls three same-origin loopback routes on the DSH host.
+- API keys and account tokens stay in the Host process; they never reach the browser and are not written to disk by this plugin.
+- It talks only to `opencode.ai` (usage), `api.deepseek.com` (API-key balance), or the DSH account service (signed-in balance).
+- No telemetry, no diagnostics upload, no files written. The display mode is stored in the browser's `localStorage`.
+- Upstream answers are cached for 30 seconds; the card's refresh button bypasses that cache.
+
+## Limitations
+
+- Only the three built-in provider ids above are supported. Other providers show `额度 —`.
+- Rewritten provider endpoints or custom credential names are not recognized.
+- The OpenCode Go usage and DeepSeek balance endpoints are not stable public contracts; they may change.
+- The plugin depends on DSH internal services and projection fields. A DSH upgrade may require an update.
+- Windows and Linux have not been manually tested. Automated tests run on all three platforms in CI; please report platform issues.
+
+## Development
+
+```sh
+node --check lib/index.js && node --check lib/client.js
+node --test test/display.test.mjs test/host.test.mjs
+npm pack --dry-run
+```
+
+## License
+
+MIT. See [LICENSE](LICENSE).
