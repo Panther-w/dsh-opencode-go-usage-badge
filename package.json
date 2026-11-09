@@ -1,6 +1,6 @@
 {
   "name": "dsh-opencode-go-usage-badge",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "Sidebar badge for OpenCode Go quota, showing the current DeepSeek official balance when that model source is selected.",
   "author": {
     "name": "Panther-w",
