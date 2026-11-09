@@ -35,7 +35,7 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 
 | Provider id | 显示内容 | 前提 |
 | --- | --- | --- |
-| `opencode-go` | OpenCode Go 三窗口额度 | 在 DSH 中配置 `OPENCODE_GO_API_KEY` |
+| `opencode-go` | OpenCode Go 三窗口额度 | 在 DSH 中配置 `OPENCODE_GO_API_KEY`，或登录 OpenCode Console |
 | `deepseek-account` | DeepSeek 登录账号余额 | 在 DSH「设置 → 账号与余额」登录 |
 | `deepseek-official` | DeepSeek API Key 余额 | 在 DSH 中配置 `DEEPSEEK_API_KEY` |
 
@@ -45,14 +45,14 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 
 适配 **DeepSeek Harness Desktop `0.2.2-rc.1`，macOS 实测**。
 
-1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.1.tgz`，或克隆本仓库。
+1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.2.tgz`，或克隆本仓库。
 2. 在 DSH Desktop 打开「插件 → 添加插件」，输入 tgz 路径、仓库地址，或本包的绝对路径；安装后启用这个 bundle。
 3. 完全退出并重新打开 DSH Desktop。打开使用上述 provider 的对话，查看左下角。
 
 使用 DSH 命令行：
 
 ```sh
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.1.tgz
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.2.tgz
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
 
@@ -61,6 +61,7 @@ dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-us
 ## 隐私与安全
 
 - 只读；浏览器只调用 DSH 本机的三个同源回环路由。
+- 未配置 Go API Key 时，Host 会只读 OpenCode Console 的本地凭据文件（`credential.json`）作为 Console 凭据（OAuth/Key）兜底；令牌只在 Host 内使用，不进入浏览器。
 - API Key 和账号 Token 只留在 Host 进程，不进入浏览器，也不由本插件写入磁盘。
 - 只访问 `opencode.ai`（额度）、`api.deepseek.com`（API Key 余额）或 DSH 账号服务（登录余额）。
 - 无遥测、无诊断上报、无文件写入。显示模式只保存在浏览器 `localStorage`。
@@ -73,6 +74,7 @@ dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-us
 - OpenCode Go 与 DeepSeek 余额接口都不是公开稳定契约，上游可能变化。
 - 插件依赖 DSH 内部服务与投影字段，DSH 大版本升级后可能需要适配。
 - Windows / Linux 未做人工实测；CI 会在三个平台跑自动测试，欢迎反馈平台问题。
+- OpenCode Console 兜底依赖它的本地凭据文件路径与格式（`~/.local/share/opencode-console/credential.json`；Windows 同一路径规则，或 `XDG_DATA_HOME`）；Console 改结构时需要适配。
 
 ## 开发
 
