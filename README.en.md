@@ -37,7 +37,7 @@ The badge reads the main-view conversation through DSH's `uiSession` service and
 
 | Provider id | Data shown | Requirement |
 | --- | --- | --- |
-| `opencode-go` | OpenCode Go quota windows | `OPENCODE_GO_API_KEY` configured in DSH |
+| `opencode-go` | OpenCode Go quota windows | `OPENCODE_GO_API_KEY` configured in DSH, or an OpenCode Console sign-in |
 | `deepseek-account` | DeepSeek account balance | signed in under DSH **Settings → Account & balance** |
 | `deepseek-official` | DeepSeek API-key balance | `DEEPSEEK_API_KEY` configured in DSH |
 
@@ -47,14 +47,14 @@ Only these built-in provider ids are recognized. Custom provider aliases or rewr
 
 Tested with **DeepSeek Harness Desktop `0.2.2-rc.1` on macOS**.
 
-1. Download `dsh-opencode-go-usage-badge-0.4.1.tgz` from the release, or clone this repository.
+1. Download `dsh-opencode-go-usage-badge-0.4.2.tgz` from the release, or clone this repository.
 2. In DSH Desktop open **Plugins → Add plugin** and enter the tarball path, the repository URL, or the absolute path of this package. Enable the bundle after installation.
 3. Fully quit and reopen DSH Desktop. Open a conversation using one of the providers above and check the bottom-left sidebar.
 
 With the DSH CLI:
 
 ```sh
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.1.tgz
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.2.tgz
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
 
@@ -63,6 +63,7 @@ Uninstall through the same Plugins page, then reopen Desktop.
 ## Privacy and security
 
 - Read-only. The browser only calls three same-origin loopback routes on the DSH host.
+- When no Go API key is configured, the Host reads OpenCode Console's local credential file (`credential.json`) as a Console credential (OAuth/key) fallback; the token stays in the Host and never reaches the browser.
 - API keys and account tokens stay in the Host process; they never reach the browser and are not written to disk by this plugin.
 - It talks only to `opencode.ai` (usage), `api.deepseek.com` (API-key balance), or the DSH account service (signed-in balance).
 - No telemetry, no diagnostics upload, no files written. The display mode is stored in the browser's `localStorage`.
@@ -75,6 +76,7 @@ Uninstall through the same Plugins page, then reopen Desktop.
 - The OpenCode Go usage and DeepSeek balance endpoints are not stable public contracts; they may change.
 - The plugin depends on DSH internal services and projection fields. A DSH upgrade may require an update.
 - Windows and Linux have not been manually tested. Automated tests run on all three platforms in CI; please report platform issues.
+- The OpenCode Console fallback depends on its local credential path and format (`~/.local/share/opencode-console/credential.json`; the same `~` layout on Windows, or `XDG_DATA_HOME`); a Console format change needs an update here.
 
 ## Development
 
