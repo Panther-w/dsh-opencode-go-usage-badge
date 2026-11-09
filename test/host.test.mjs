@@ -233,15 +233,28 @@ test('account and key keep separate caches when both wallets are configured', as
 })
 
 test('generic OpenCode credentials never authorize a Go lookup', async () => {
-  const refs = []
-  const { ctx, routes } = makeCtx({ credentials: { resolve: async (ref) => {
-    refs.push(ref)
-    return ref === 'OPENCODE_API_KEY' ? 'unrelated-key' : undefined
-  } } })
-  const host = await loadHost()
-  host.apply(ctx)
-  assert.equal((await callRoute(routes, USAGE_PATH)).body.reason, 'no-key')
-  assert.deepEqual(refs, ['OPENCODE_GO_API_KEY'])
+  const os = await import('node:os')
+  const fsp = await import('node:fs/promises')
+  const path = await import('node:path')
+  const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'badge-console-'))
+  const previous = process.env.XDG_DATA_HOME
+  process.env.XDG_DATA_HOME = dir
+  try {
+    const refs = []
+    const { ctx, routes } = makeCtx({ credentials: { resolve: async (ref) => {
+      refs.push(ref)
+      return ref === 'OPENCODE_API_KEY' ? 'unrelated-key' : undefined
+    } } })
+    const host = await loadHost()
+    host.apply(ctx)
+    assert.equal((await callRoute(routes, USAGE_PATH)).body.reason, 'no-key')
+    // The Go key is tried first, then the Console fallback; a generic key is ignored.
+    assert.deepEqual(refs, ['OPENCODE_GO_API_KEY', 'OPENCODE_CONSOLE_TOKEN'])
+  } finally {
+    if (previous === undefined) delete process.env.XDG_DATA_HOME
+    else process.env.XDG_DATA_HOME = previous
+    await fsp.rm(dir, { recursive: true, force: true })
+  }
 })
 
 test('late host responses cannot replace a newer cached balance', async () => {
@@ -266,4 +279,151 @@ test('credential service errors do not disclose private details to the page', as
   const { body } = await callRoute(routes, KEY_PATH)
   assert.equal(body.reason, 'credential')
   assert.doesNotMatch(body.message, /fixture-private-detail/)
+})
+
+
+test('OpenCode route falls back to the Console OAuth token file', async () => {
+  const os = await import('node:os')
+  const fsp = await import('node:fs/promises')
+  const path = await import('node:path')
+  const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'badge-console-'))
+  const previous = process.env.XDG_DATA_HOME
+  process.env.XDG_DATA_HOME = dir
+  try {
+    await fsp.mkdir(path.join(dir, 'opencode-console'), { recursive: true })
+    await fsp.writeFile(path.join(dir, 'opencode-console', 'credential.json'), JSON.stringify({
+      type: 'oauth', methodID: 'm', refresh: 'r', access: 'console-access-token', expires: Date.now() + 3_600_000, metadata: {},
+    }))
+    const host = await loadHost()
+    const { ctx, routes } = makeCtx()
+    const originalFetch = globalThis.fetch
+    let authorization = null
+    globalThis.fetch = async (_url, options) => {
+      authorization = options?.headers?.Authorization
+      return {
+        status: 200,
+        ok: true,
+        json: async () => ({ usage: { rolling: { percent: 1 }, weekly: { percent: 2 }, monthly: { percent: 3 } } }),
+      }
+    }
+    try {
+      host.apply(ctx)
+      const { body } = await callRoute(routes, USAGE_PATH)
+      assert.equal(body.ok, true)
+      assert.equal(authorization, 'Bearer console-access-token')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  } finally {
+    if (previous === undefined) delete process.env.XDG_DATA_HOME
+    else process.env.XDG_DATA_HOME = previous
+    await fsp.rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('DSH Go key wins over a Console credential file', async () => {
+  const os = await import('node:os')
+  const fsp = await import('node:fs/promises')
+  const path = await import('node:path')
+  const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'badge-console-'))
+  const previous = process.env.XDG_DATA_HOME
+  process.env.XDG_DATA_HOME = dir
+  try {
+    await fsp.mkdir(path.join(dir, 'opencode-console'), { recursive: true })
+    await fsp.writeFile(path.join(dir, 'opencode-console', 'credential.json'), JSON.stringify({ type: 'key', key: 'console-key' }))
+    const host = await loadHost()
+    const { ctx, routes } = makeCtx({
+      credentials: { async resolve(ref) { return ref === 'OPENCODE_GO_API_KEY' ? 'dsh-go-key' : undefined } },
+    })
+    const originalFetch = globalThis.fetch
+    let authorization = null
+    globalThis.fetch = async (_url, options) => {
+      authorization = options?.headers?.Authorization
+      return { status: 200, ok: true, json: async () => ({ usage: { rolling: { percent: 1 } } }) }
+    }
+    try {
+      host.apply(ctx)
+      const { body } = await callRoute(routes, USAGE_PATH)
+      assert.equal(body.ok, true)
+      assert.equal(authorization, 'Bearer dsh-go-key')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  } finally {
+    if (previous === undefined) delete process.env.XDG_DATA_HOME
+    else process.env.XDG_DATA_HOME = previous
+    await fsp.rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('Console key-type credentials are supported and missing credentials still report no-key', async () => {
+  const os = await import('node:os')
+  const fsp = await import('node:fs/promises')
+  const path = await import('node:path')
+  const dir = await fsp.mkdtemp(path.join(os.tmpdir(), 'badge-console-'))
+  const previous = process.env.XDG_DATA_HOME
+  process.env.XDG_DATA_HOME = dir
+  try {
+    await fsp.mkdir(path.join(dir, 'opencode-console'), { recursive: true })
+    await fsp.writeFile(path.join(dir, 'opencode-console', 'credential.json'), JSON.stringify({ type: 'key', key: 'console-key' }))
+    const host = await loadHost()
+    const { ctx, routes } = makeCtx()
+    const originalFetch = globalThis.fetch
+    let authorization = null
+    globalThis.fetch = async (_url, options) => {
+      authorization = options?.headers?.Authorization
+      return { status: 200, ok: true, json: async () => ({ usage: { rolling: { percent: 1 } } }) }
+    }
+    try {
+      host.apply(ctx)
+      const { body } = await callRoute(routes, USAGE_PATH)
+      assert.equal(body.ok, true)
+      assert.equal(authorization, 'Bearer console-key')
+      await fsp.rm(path.join(dir, 'opencode-console', 'credential.json'))
+      const missing = await callRoute(routes, USAGE_PATH, { request: { url: `${USAGE_PATH}?refresh=1` } })
+      assert.equal(missing.body.ok, false)
+      assert.equal(missing.body.reason, 'no-key')
+    } finally {
+      globalThis.fetch = originalFetch
+    }
+  } finally {
+    if (previous === undefined) delete process.env.XDG_DATA_HOME
+    else process.env.XDG_DATA_HOME = previous
+    await fsp.rm(dir, { recursive: true, force: true })
+  }
+})
+
+test('Console credential parser accepts oauth, key and wrapped shapes', async () => {
+  const host = await loadHost()
+  assert.equal(host.__test.tokenFromConsoleCredential({ type: 'oauth', access: 'a' }), 'a')
+  assert.equal(host.__test.tokenFromConsoleCredential({ type: 'key', key: 'k' }), 'k')
+  assert.equal(host.__test.tokenFromConsoleCredential({ credential: { type: 'oauth', access: 'n' } }), 'n')
+  assert.equal(host.__test.tokenFromConsoleCredential({ type: 'oauth', access: '  ' }), null)
+  assert.equal(host.__test.tokenFromConsoleCredential(null), null)
+  const path = await import('node:path')
+  assert.equal(host.__test.consoleCredentialPath({ XDG_DATA_HOME: '/tmp/xdg' }, '/home/u'), path.join('/tmp/xdg', 'opencode-console', 'credential.json'))
+  assert.equal(host.__test.consoleCredentialPath({}, '/home/u'), path.join('/home/u', '.local', 'share', 'opencode-console', 'credential.json'))
+})
+
+
+test('control characters in a credential are rejected before fetch', async () => {
+  const host = await loadHost()
+  const { ctx, routes } = makeCtx({
+    credentials: { async resolve(ref) { return ref === 'OPENCODE_GO_API_KEY' ? 'bad\r\nX-Injected: yes' : undefined } },
+  })
+  const originalFetch = globalThis.fetch
+  let calls = 0
+  globalThis.fetch = async () => { calls += 1; return { status: 200, ok: true, json: async () => ({}) } }
+  try {
+    host.apply(ctx)
+    const { body } = await callRoute(routes, USAGE_PATH)
+    assert.equal(body.ok, false)
+    assert.equal(body.reason, 'no-key')
+    assert.equal(calls, 0)
+    assert.equal(host.__test.usableToken('ok-token'), 'ok-token')
+    assert.equal(host.__test.usableToken('bad\r\nvalue'), null)
+    assert.equal(host.__test.usableToken('  '), null)
+  } finally {
+    globalThis.fetch = originalFetch
+  }
 })
