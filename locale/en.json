@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "OpenCode Go Usage Badge",
-    "description": "Tiny sidebar badge for OpenCode Go quota, switching to DeepSeek official balance for that model source."
+    "description": "A quiet, unobtrusive one-line DSH badge: see your OpenCode Go quota; when the conversation switches to a DeepSeek official model, it shows the balance instead. No setup; it just runs quietly."
   }
 }
