@@ -1,12 +1,10 @@
 # dsh-opencode-go-usage-badge
 
-[中文说明](README.md) | English
+A quiet, unobtrusive one-line DSH badge: see your OpenCode Go quota; when the conversation switches to a DeepSeek official model, it shows the balance instead. No setup; it just runs quietly.
 
-A tiny, quiet badge at the bottom of the DeepSeek Harness sidebar. It shows how much **OpenCode Go** quota you have left, and switches to your **DeepSeek official balance** when the current conversation uses that model.
+[中文说明](https://github.com/Panther-w/dsh-opencode-go-usage-badge/blob/main/README.md) | English
 
-No setup screens, no layout changes, no background writes — just a small number you can glance at.
-
-![Annotated screenshot of the badge and its expanded card](docs/preview.en.png)
+![Annotated screenshot of the badge and its expanded card](https://raw.githubusercontent.com/Panther-w/dsh-opencode-go-usage-badge/main/docs/preview.en.png)
 
 Screenshots show the Chinese UI; the English README describes the same interface.
 
@@ -25,7 +23,7 @@ Three design rules keep it small:
 - Collapsed: the windows you selected, in a fixed order — `● 5h 95%`, `● 5h 95% · 1w 98%`, and so on.
 - Tick any of `5h` / `1w` / `1m` in the expanded card. At least one stays selected; the default is `5h`, and the choice is remembered.
 - The status dot always uses the tightest of all three windows, even when you hide it. If a hidden window is tighter than everything shown, the badge adds an amber `!` naming it in its tooltip.
-- Colors: **above 20% green, 6–20% yellow, 5% and below red**; 0% is red. Normal numbers stay in the theme text color; at 20% or below the number itself turns yellow/red, not just the dot.
+- Colors: **above 20% green, above 5% and up to 20% yellow, 5% and below red**; 0% is red. Normal numbers stay in the theme text color; at 20% or below the number itself turns yellow/red, not just the dot.
 - DeepSeek official conversation: `● ¥88.00`; the card shows total, recharge and bonus balances, the data source and the current model. A zero or negative balance is red.
 - Unknown provider: `额度 —` in grey — never a guessed number.
 - Data older than 5 minutes gets a `!`. A failed request keeps the last successful value for that source; missing or rejected credentials clear it.
@@ -47,14 +45,15 @@ Only these built-in provider ids are recognized. Custom provider aliases or rewr
 
 Tested with **DeepSeek Harness Desktop `0.2.2-rc.1` on macOS**.
 
-1. Download `dsh-opencode-go-usage-badge-0.4.2.tgz` from the release, or clone this repository.
+1. Download `dsh-opencode-go-usage-badge-0.4.3.tgz` from the release, or clone this repository.
 2. In DSH Desktop open **Plugins → Add plugin** and enter the tarball path, the repository URL, or the absolute path of this package. Enable the bundle after installation.
 3. Fully quit and reopen DSH Desktop. Open a conversation using one of the providers above and check the bottom-left sidebar.
 
-With the DSH CLI:
+With the DSH CLI (npm, tarball, or repository URL):
 
 ```sh
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.2.tgz
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.3.tgz
+dsh plugin --profile desktop add dsh-opencode-go-usage-badge
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
 
@@ -88,4 +87,4 @@ npm pack --dry-run
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See [LICENSE](https://github.com/Panther-w/dsh-opencode-go-usage-badge/blob/main/LICENSE).
