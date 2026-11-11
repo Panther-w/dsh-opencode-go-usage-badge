@@ -1,12 +1,10 @@
 # dsh-opencode-go-usage-badge
 
-中文 | [English](README.en.md)
+一个安静无感的 DSH 一行小徽标：看 OpenCode Go 额度，切到 DeepSeek 官方模型自动显示余额。无需设置，安静运行。
 
-DeepSeek Harness 侧栏底部的一个很轻的小徽标：显示当前 **OpenCode Go** 还剩多少额度；当当前对话使用 **DeepSeek 官方**模型时，它切换成对应的**余额**显示。
+[English](https://github.com/Panther-w/dsh-opencode-go-usage-badge/blob/main/README.en.md)
 
-没有设置页、不改布局、不后台写文件——只是侧栏底部一个可以顺手扫一眼的小数字。
-
-![徽标与展开卡的界面截图（示例数据，不含账号信息）](docs/preview.zh.png)
+![徽标与展开卡的界面截图（示例数据，不含账号信息）](https://raw.githubusercontent.com/Panther-w/dsh-opencode-go-usage-badge/main/docs/preview.zh.png)
 
 ## 它是干嘛的
 
@@ -23,7 +21,7 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 - 折叠态：显示你勾选的窗口，顺序固定——`● 5h 95%`、`● 5h 95% · 1w 98%` 等。
 - 在展开卡勾选 `5h` / `1w` / `1m`，至少保留一个；默认只选 `5h`，偏好会被记住。
 - 状态点始终按三个窗口里最紧的那个上色，即使你没显示它。如果没显示的窗口比已显示的更紧，徽标会加一个黄色 `!`，悬停会说明是哪个窗口。
-- 颜色：**高于 20% 绿、6–20% 黄、5% 及以下红**；0% 为红。正常数字保持主题文字色；20% 及以下时数字本身才变黄/红，不只靠圆点。
+- 颜色：**高于 20% 绿、超过 5% 且不超过 20% 黄、5% 及以下红**；0% 为红。正常数字保持主题文字色；20% 及以下时数字本身才变黄/红，不只靠圆点。
 - DeepSeek 官方对话：`● ¥88.00`；卡片显示总余额、充值余额、赠金、数据来源与当前模型；余额为 0 或负数时显示红色。
 - 其他 provider：灰色「额度 —」，不猜数字。
 - 数据超过 5 分钟会标 `!`。某个来源请求失败时保留该来源上一次成功的值；凭据缺失、被拒或退出时清除。
@@ -45,14 +43,15 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 
 适配 **DeepSeek Harness Desktop `0.2.2-rc.1`，macOS 实测**。
 
-1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.2.tgz`，或克隆本仓库。
+1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.3.tgz`，或克隆本仓库。
 2. 在 DSH Desktop 打开「插件 → 添加插件」，输入 tgz 路径、仓库地址，或本包的绝对路径；安装后启用这个 bundle。
 3. 完全退出并重新打开 DSH Desktop。打开使用上述 provider 的对话，查看左下角。
 
-使用 DSH 命令行：
+使用 DSH 命令行（npm 安装 / tgz / 仓库地址）：
 
 ```sh
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.2.tgz
+dsh plugin --profile desktop add dsh-opencode-go-usage-badge
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.3.tgz
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
 
@@ -86,4 +85,4 @@ npm pack --dry-run
 
 ## 许可证
 
-MIT，见 [LICENSE](LICENSE)。
+MIT，见 [LICENSE](https://github.com/Panther-w/dsh-opencode-go-usage-badge/blob/main/LICENSE)。
