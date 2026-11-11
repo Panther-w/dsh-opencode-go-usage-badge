@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.3 — 2026-11-10
+
+- First npm release.
+- Reworded the npm/GitHub/market first impression to a Chinese-first, one-line description: quiet, one line, no settings page, read-only and no uploads.
+- No functional changes from 0.4.2.
+
 ## 0.4.2 — 2026-11-09
 
 - OpenCode Go: when `OPENCODE_GO_API_KEY` is absent, fall back to an installed OpenCode Console's local OAuth credential (`credential.json`), so Console users no longer see `额度 —`.
