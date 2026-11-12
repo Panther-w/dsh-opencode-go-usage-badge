@@ -351,3 +351,20 @@ test('Panel renders the OpenCode quota card', () => {
     onRefresh: () => {},
   }))
 })
+
+
+test('withDefaultSource fills a brand-new conversation with the profile default', () => {
+  const detected = { status: 'detecting', sessionId: null, face: null }
+  assert.deepStrictEqual({ ...T.withDefaultSource(detected, { provider: 'opencode-go', model: 'deepseek-v4.1-flash' }) }, {
+    status: 'ready',
+    provider: 'opencode-go',
+    model: 'deepseek-v4.1-flash',
+    sessionId: null,
+    face: null,
+    fromDefault: true,
+  })
+  const ready = { status: 'ready', provider: 'deepseek-official', model: 'deepseek-chat' }
+  assert.equal(T.withDefaultSource(ready, { provider: 'opencode-go', model: 'x' }), ready)
+  assert.equal(T.withDefaultSource(detected, null), detected)
+  assert.equal(T.withDefaultSource(detected, { provider: 'opencode-go' }), detected)
+})
