@@ -45,14 +45,14 @@ Only these built-in provider ids are recognized. Custom provider aliases or rewr
 
 Tested with **DeepSeek Harness Desktop `0.2.2-rc.1` on macOS**.
 
-1. Download `dsh-opencode-go-usage-badge-0.4.4.tgz` from the release, or clone this repository.
+1. Download `dsh-opencode-go-usage-badge-0.4.5.tgz` from the release, or clone this repository.
 2. In DSH Desktop open **Plugins → Add plugin** and enter the tarball path, the repository URL, or the absolute path of this package. Enable the bundle after installation.
 3. Fully quit and reopen DSH Desktop. Open a conversation using one of the providers above and check the bottom-left sidebar.
 
 With the DSH CLI (npm, tarball, or repository URL):
 
 ```sh
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.4.tgz
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.5.tgz
 dsh plugin --profile desktop add dsh-opencode-go-usage-badge
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
