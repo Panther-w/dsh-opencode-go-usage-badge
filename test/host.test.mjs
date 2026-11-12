@@ -7,6 +7,7 @@ import test from 'node:test'
 const USAGE_PATH = '/dsh-opencode-go-usage-badge/api'
 const ACCOUNT_PATH = '/dsh-opencode-go-usage-badge/deepseek/account'
 const KEY_PATH = '/dsh-opencode-go-usage-badge/deepseek/api-key'
+const DEFAULT_MODEL_PATH = '/dsh-opencode-go-usage-badge/default-model'
 
 /** Fresh module instance per test, so module-level caches do not leak. */
 let instance = 0
@@ -15,7 +16,7 @@ async function loadHost() {
   return import(`../lib/index.js?test=${instance}`)
 }
 
-function makeCtx({ credentials, account } = {}) {
+function makeCtx({ credentials, account, defaultModel } = {}) {
   const routes = new Map()
   const ctx = {
     webServer: {
@@ -28,6 +29,7 @@ function makeCtx({ credentials, account } = {}) {
     get(name) {
       if (name === 'credentials') return this.credentials
       if (name === 'deepseekAccount') return account
+      if (name === 'agentDefaultModel') return defaultModel
       return undefined
     },
     effect(run) { return run() },
@@ -58,11 +60,22 @@ async function callRoute(routes, path, { request, ...rest } = {}) {
   return { response, body: response.body === '' ? null : JSON.parse(response.body) }
 }
 
-test('only the three read-only data routes are registered', async () => {
+test('the four read-only data routes are registered', async () => {
   const host = await loadHost()
   const { ctx, routes } = makeCtx()
   host.apply(ctx)
-  assert.deepEqual([...routes.keys()].sort(), [USAGE_PATH, ACCOUNT_PATH, KEY_PATH].sort())
+  assert.deepEqual([...routes.keys()].sort(), [USAGE_PATH, ACCOUNT_PATH, KEY_PATH, DEFAULT_MODEL_PATH].sort())
+})
+
+test('default model route exposes the profile default for new conversations', async () => {
+  const host = await loadHost()
+  const { ctx, routes } = makeCtx({
+    defaultModel: { currentSelection: () => ({ provider: 'opencode-go', model: 'deepseek-v4.1-flash', reasoningEffort: 'high' }) },
+  })
+  host.apply(ctx)
+  const { response, body } = await callRoute(routes, DEFAULT_MODEL_PATH)
+  assert.equal(response.statusCode, 200)
+  assert.deepEqual(body, { ok: true, provider: 'opencode-go', model: 'deepseek-v4.1-flash' })
 })
 
 test('OpenCode route reports the three remaining windows', async () => {
