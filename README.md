@@ -43,7 +43,7 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 
 适配 **DeepSeek Harness Desktop `0.2.2-rc.1`，macOS 实测**。
 
-1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.4.tgz`，或克隆本仓库。
+1. 从 Release 下载 `dsh-opencode-go-usage-badge-0.4.5.tgz`，或克隆本仓库。
 2. 在 DSH Desktop 打开「插件 → 添加插件」，输入 tgz 路径、仓库地址，或本包的绝对路径；安装后启用这个 bundle。
 3. 完全退出并重新打开 DSH Desktop。打开使用上述 provider 的对话，查看左下角。
 
@@ -51,7 +51,7 @@ OpenCode Go 的三个额度窗口（5 小时滚动 / 本周 / 本月）各自独
 
 ```sh
 dsh plugin --profile desktop add dsh-opencode-go-usage-badge
-dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.4.tgz
+dsh plugin --profile desktop add /path/to/dsh-opencode-go-usage-badge-0.4.5.tgz
 dsh plugin --profile desktop add https://github.com/Panther-w/dsh-opencode-go-usage-badge
 ```
 
