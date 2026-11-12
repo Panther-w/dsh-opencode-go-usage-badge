@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.5 — 2026-11-11
+
+- New Conversations now show data immediately: when the session has no model selection yet, the badge asks the Host for the profile default model (`agentDefaultModel.currentSelection()`) and uses it until the real Session selection appears.
+
 ## 0.4.4 — 2026-11-11
 
 - Fix: the expanded card stayed white in DSH's dark theme. It used non-existent `--dsw-alias-bg-l2/l3` variables; now uses `--dsw-alias-bg-layer-2/3`, so the panel and window chips follow the active theme.
